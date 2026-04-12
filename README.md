@@ -12,6 +12,8 @@ pip install -r requirements.txt
 '''
 
 ## 프로젝트 구조
+```
+trustworthy-ai-assignment2/
 ├── deepxplore/          # 원본 DeepXplore 레포지토리 (수정 없음)
 ├── models/              # 학습된 ResNet50 모델 저장
 ├── results/             # 생성된 disagreement 시각화 결과
@@ -20,6 +22,7 @@ pip install -r requirements.txt
 ├── train_models.py      # ResNet50 학습 스크립트
 ├── test.py              # 데모 실행 파일
 └── requirements.txt     # 의존성 목록
+```
 
 ## DeepXplore 수정 사항
 (추후 작성 예정 - 수정 완료 후 채울 것)
