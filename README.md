@@ -5,11 +5,11 @@ DeepXplore on CIFAR-10 ResNet50
 DeepXplore를 활용하여 CIFAR-10으로 학습된 두 개의 ResNet50 모델에 대해 차분 테스트를 수행함
 
 ## 환경 설정
-'''bash
+```bash
 conda create -n deepxplore python=3.8
 conda activate deepxplore
 pip install -r requirements.txt
-'''
+```
 
 ## 프로젝트 구조
 ```
