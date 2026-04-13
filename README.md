@@ -36,6 +36,7 @@ trustworthy-ai-assignment2/
 5. **이미지 저장** : 'scipy.misc.imsave' -> 'matplotlib'
 6. **Python 호환성** : 'xrange' -> 'range' (Python 3)
 7. **이미지 클리핑** : gradient ascent 중 정규화 범위 초과 방지 로직 추가
+8. **포화 이미지 필터링** : 픽셀값이 포화된 이미지는 시각화에서 제외하였습니다.
 
 ## 실행 방법
 ```bash
@@ -43,3 +44,9 @@ python test.py
 ```
 모델 파일이 없으면 자동으로 학습 후 DeepXplore를 실행합니다.
 결과는 'results/' 폴더에 PNG 파일로 저장됩니다.
+
+## 실험 결과
+- **Disagreement 유발 입력 수** : 94개 (100개 seed 중)
+- **모델1 뉴런 커버리지**: 65.6%
+- **모델2 뉴런 커버리지**: 71.7%
+- **시각화 저장**: 'results/' 폴더에 7개 PNG 저장
