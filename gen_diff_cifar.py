@@ -14,6 +14,11 @@ from utils_cifar import (load_model, init_coverage_tables, neuron_to_cover,
                          constraint_light, constraint_black, constraint_occl,
                          CLASS_NAMES)
 
+random.seed(42)
+np.random.seed(42)
+torch.manual_seed(42)
+torch.cuda.manual_seed_all(42)
+
 def get_seed_inputs(num_seeds=100):
     transform = transforms.Compose([
         transforms.ToTensor(),
@@ -32,6 +37,8 @@ def deprocess_image(tensor):
     img = tensor.squeeze().permute(1, 2, 0).cpu().numpy()
     img = img * std + mean
     img = np.clip(img, 0, 1)
+    
+    print(f"  이미지 값 범위: min={img.min():.3f}, max={img.max():.3f}", flush=True)
     return img
 
 def run_deepxplore(transformation='light', weight_diff=1.0, weight_nc=0.1,
@@ -69,7 +76,7 @@ def run_deepxplore(transformation='light', weight_diff=1.0, weight_nc=0.1,
             update_coverage(gen_img, model1, model_layer_dict1, threshold, device)
             update_coverage(gen_img, model2, model_layer_dict2, threshold, device)
             disagreement_count += 1
-            disagreement_inputs.append((gen_img.detach().cpu(), label1, label2, true_label))
+            disagreement_inputs.append((seed_img.unsqueeze(0), label1, label2, true_label))
             continue
 
         orig_label = label1
@@ -117,7 +124,8 @@ def run_deepxplore(transformation='light', weight_diff=1.0, weight_nc=0.1,
                 update_coverage(gen_img, model1, model_layer_dict1, threshold, device)
                 update_coverage(gen_img, model2, model_layer_dict2, threshold, device)
                 disagreement_count += 1
-                disagreement_inputs.append((gen_img.detach().cpu(), label1, label2, true_label))
+                gen_img_clipped = gen_img.detach().cpu()
+                disagreement_inputs.append((gen_img_clipped, label1, label2, true_label))
                 print(f"  → disagreement 발견! 모델1={CLASS_NAMES[label1]}, 모델2={CLASS_NAMES[label2]}", flush=True)
                 break
 
@@ -137,14 +145,21 @@ def visualize_disagreements(disagreement_inputs):
         print("시각화할 disagreement가 없습니다.", flush=True)
         return
 
+    saved_count = 0
     for i, (img_tensor, label1, label2, true_label) in enumerate(disagreement_inputs):
         img = deprocess_image(img_tensor)
+        
+        if img.max() - img.min() < 0.05:
+            print(f"  건너뜀 (포화된 이미지): {i+1}번", flush=True)
+            continue
+
+        saved_count += 1
         plt.figure(figsize=(4, 4))
         plt.imshow(img)
         plt.title(f"True: {CLASS_NAMES[true_label]}\n"
                   f"Model1: {CLASS_NAMES[label1]} | Model2: {CLASS_NAMES[label2]}")
         plt.axis('off')
-        save_path = f'results/disagreement_{i+1}_m1_{CLASS_NAMES[label1]}_m2_{CLASS_NAMES[label2]}.png'
+        save_path = f'results/disagreement_{saved_count}_m1_{CLASS_NAMES[label1]}_m2_{CLASS_NAMES[label2]}.png'
         plt.savefig(save_path, bbox_inches='tight')
         plt.close()
         print(f"저장: {save_path}", flush=True)
