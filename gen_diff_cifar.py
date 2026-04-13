@@ -100,6 +100,12 @@ def run_deepxplore(transformation='light', weight_diff=1.0, weight_nc=0.1,
                 grads = constraint_occl(grads)
 
             gen_img = (gen_img.detach() + grads * step).requires_grad_(True)
+            
+            mean = torch.tensor([0.4914, 0.4822, 0.4465]).view(1, 3, 1, 1).to(device)
+            std = torch.tensor([0.2023, 0.1994, 0.2010]).view(1, 3, 1, 1).to(device)
+            min_val = (0 - mean) / std
+            max_val = (1 - mean) / std
+            gen_img = torch.max(torch.min(gen_img, max_val), min_val).requires_grad_(True)
 
             with torch.no_grad():
                 pred1 = model1(gen_img)
